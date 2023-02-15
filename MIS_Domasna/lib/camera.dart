@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 
@@ -7,49 +9,87 @@ class Camera extends StatefulWidget {
 }
 
 class _CameraState extends State<Camera> {
-  List<CameraDescription> cameras;
-
-  // Select the front camera
-  CameraController controller = CameraController(
-    cameras.firstWhere((camera) => camera.lensDirection == CameraLensDirection.front),
-    ResolutionPreset.high,
-  );
-
+  List<CameraDescription>? cameras; //list out the camera available
+  CameraController? controller; //controller for camera
+  XFile? image; //for caputred image
 
   @override
   void initState() {
+    loadCamera();
     super.initState();
+  }
 
-    // Retrieve the available cameras
-    availableCameras().then((value) => setState(() {
-      cameras = value;
-    }));
+  loadCamera() async {
+    cameras = await availableCameras();
+    if(cameras != null){
+      controller = CameraController(cameras![0], ResolutionPreset.max);
+      //cameras[0] = first camera, change to 1 to another camera
 
-    // Initialize the camera controller
-    controller.initialize().then((_) {
-      if (!mounted) {
-        return;
-      }
-      setState(() {});
-
-      // Start the camera preview
-      controller.startImageStream((image) {
-        // process the camera image here
+      controller!.initialize().then((_) {
+        if (!mounted) {
+          return;
+        }
+        setState(() {});
       });
-    });
+    }else{
+      print("NO any camera found");
+    }
   }
-
-  @override
-  void dispose() {
-    // Stop the camera preview and release resources
-    controller?.dispose();
-    super.dispose();
-  }
-
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
-    throw UnimplementedError();
+
+    return  Scaffold(
+      appBar: AppBar(
+        title: Text("Live Camera Preview"),
+        backgroundColor: Colors.blue,
+      ),
+      body: Container(
+          child: Column(
+              children:[
+                Container(
+                    height:300,
+                    width:400,
+                    child: controller == null?
+                    Center(child:Text("Loading Camera...")):
+                    !controller!.value.isInitialized?
+                    Center(
+                      child: CircularProgressIndicator(),
+                    ):
+                    CameraPreview(controller!)
+                ),
+
+
+
+                Container( //show captured image
+                  padding: EdgeInsets.all(30),
+                  child: image == null?
+                  Text("This is a funny guy"):
+                  Image.file(File(image!.path), height: 300,),
+                  //display captured image
+                )
+              ]
+          )
+      ),
+
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: () async{
+      //     try {
+      //       if(controller != null){ //check if contrller is not null
+      //         if(controller!.value.isInitialized){ //check if controller is initialized
+      //           image = await controller!.takePicture(); //capture image
+      //           setState(() {
+      //             //update UI
+      //           });
+      //         }
+      //       }
+      //     } catch (e) {
+      //       print(e); //show error
+      //     }
+      //   },
+      //   child: Icon(Icons.camera),
+      // ),
+
+    );
   }
 }

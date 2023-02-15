@@ -1,8 +1,7 @@
-package com.example.mis_backend.api
+package finki.mis_backend.api
 
-import com.example.mis_backend.domain.Post
-import com.example.mis_backend.service.PostService
-import org.springframework.http.ResponseEntity
+import finki.mis_backend.domain.Post
+import finki.mis_backend.service.PostService
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -14,7 +13,7 @@ class PostController(
     fun getAllPosts(): List<Post> = postService.getAllPost()
 
     @PostMapping
-    fun savePost(@RequestBody post: Post) {
-        postService.save(post)
+    fun savePost(@RequestBody text: String) {
+        postService.save(text)
     }
 }

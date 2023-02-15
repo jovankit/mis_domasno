@@ -1,9 +1,10 @@
 // import 'dart:ffi';
 
 import 'package:flutter/material.dart';
-// import 'dart:convert';
-// import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:mis_domasna/Post.dart';
+import 'package:mis_domasna/camera.dart';
 import 'package:mis_domasna/compass.dart';
 import 'card.dart';
 import 'form.dart';
@@ -40,15 +41,31 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
-  List<Post> posts=[Post(text: 'Test', votes: 24, id: 1),Post(text: 'Test', votes: 24, id: 1),Post(text: 'Test', votes: 24, id: 1)];
-  List<MyCard> cards=[];
+  List<Post> posts = [
+    Post(text: 'Test', votes: 24, id: 1),
+    Post(text: 'Test', votes: 24, id: 1),
+    Post(text: 'Test', votes: 24, id: 1)
+  ];
+  List<MyCard> cards = [];
+
+  @override
+  void initState() {
+    super.initState();
+    print("here");
+  }
+
   void _incrementCounter() {
     setState(() {
       _counter++;
     });
   }
-  void _mainPage(BuildContext context){
-    Navigator.of(context).push(MaterialPageRoute(builder: (_)=>MyFormPage()));
+
+  void _mainPage(BuildContext context) {
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => MyFormPage()));
+  }
+
+  void _mirror(BuildContext context) {
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => Camera()));
   }
 
   @override
@@ -57,7 +74,6 @@ class _MyHomePageState extends State<MyHomePage> {
       cards.add(MyCard(id: 1, text: element.text, votes: element.votes));
     });
     cards.sort((a, b) => a.votes.compareTo(b.votes));
-    // makeGetRequest();
     return MaterialApp(
       home: DefaultTabController(
         length: 2,
@@ -70,24 +86,33 @@ class _MyHomePageState extends State<MyHomePage> {
               ],
             ),
             title: Text('Happyplace'),
+            actions: [
+              FloatingActionButton(
+                onPressed: () {
+                  makeGetRequest();
+                  // _mirror(context);
+                },
+                tooltip: 'Post',
+                child: const Text('Mirror'),
+              )
+            ],
           ),
           body: TabBarView(
             children: [
               Container(
-                color:Colors.blue,
+                color: Colors.blue,
                 child: Compass1(),
               ),
               Container(
                 color: Colors.blue,
-                child: Center(
-                  child: ListView(children: cards)
-                  // [
-                  //   Card(
-                  //     child: MyCard(),
-                  //   )
-                  // ]
-                  ),
-                ),
+                child: Center(child: ListView(children: cards)
+                    // [
+                    //   Card(
+                    //     child: MyCard(),
+                    //   )
+                    // ]
+                    ),
+              ),
             ],
           ),
           floatingActionButton: FloatingActionButton(
@@ -101,18 +126,25 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     );
   }
-}
 
-// Future<void> makeGetRequest() async {
-//   final response = await http.get('http://localhost:8082/api/posts');
-//
-//   if (response.statusCode == 200) {
-//     // If the server returns a 200 OK response, parse the JSON.
-//     List posts = json.decode(response.body);
-//     print("here");
-//     print(posts);
-//   } else {
-//     // If the server returns an error, throw an exception.
-//     throw Exception('Failed to load data');
-//   }
-// }
+  Future<void> makeGetRequest() async {
+    print("Jovan");
+    // final response = await http.get('http://localhost:8082/api/posts');
+    final response =
+        await http.get(Uri.parse('http://10.0.2.2:8082/api/posts'));
+
+    if (response.statusCode == 200) {
+      // If the server returns a 200 OK response, parse the JSON.
+      List posts = json.decode(response.body);
+      print("here");
+      print(posts);
+      posts.forEach((element) {
+        cards.add(MyCard(id: 1, text: element['text'], votes: element["votes"]));
+      });
+    } else {
+      print("here");
+      // If the server returns an error, throw an exception.
+      throw Exception('Failed to load data');
+    }
+  }
+}

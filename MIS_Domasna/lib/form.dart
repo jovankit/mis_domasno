@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 class MyFormPage extends StatefulWidget {
   @override
@@ -36,6 +37,7 @@ class _MyFormPageState extends State<MyFormPage> {
                   setState(() {
                     _text = value!;
                   });
+                  createPost();
                 },
               ),
               const Padding(
@@ -48,5 +50,20 @@ class _MyFormPageState extends State<MyFormPage> {
         ),
       ),
     );
+  }
+
+  Future<void> createPost() async {
+    final response = await http.post(
+        Uri.parse('http://10.0.2.2:8082/api/posts'),
+        body: {
+          'text': _text,
+        }
+    );
+
+    if (response.statusCode == 201) {
+      print('Post created successfully.');
+    } else {
+      print('Request failed with status: ${response.statusCode}.');
+    }
   }
 }

@@ -1,5 +1,3 @@
-// import 'dart:ffi';
-
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -8,7 +6,6 @@ import 'package:mis_domasna/camera.dart';
 import 'package:mis_domasna/compass.dart';
 import 'card.dart';
 import 'form.dart';
-import 'funnyCompass.dart';
 
 void main() {
   runApp(const MyApp());
@@ -41,17 +38,12 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
-  List<Post> posts = [
-    Post(text: 'Test', votes: 24, id: 1),
-    Post(text: 'Test', votes: 24, id: 1),
-    Post(text: 'Test', votes: 24, id: 1)
-  ];
   List<MyCard> cards = [];
 
   @override
   void initState() {
     super.initState();
-    print("here");
+    makeGetRequest();
   }
 
   void _incrementCounter() {
@@ -70,9 +62,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    posts.forEach((element) {
-      cards.add(MyCard(id: 1, text: element.text, votes: element.votes));
-    });
     cards.sort((a, b) => a.votes.compareTo(b.votes));
     return MaterialApp(
       home: DefaultTabController(
@@ -88,9 +77,9 @@ class _MyHomePageState extends State<MyHomePage> {
             title: Text('Happyplace'),
             actions: [
               FloatingActionButton(
+                backgroundColor: Colors.green,
                 onPressed: () {
-                  makeGetRequest();
-                  // _mirror(context);
+                  _mirror(context);
                 },
                 tooltip: 'Post',
                 child: const Text('Mirror'),
@@ -101,26 +90,24 @@ class _MyHomePageState extends State<MyHomePage> {
             children: [
               Container(
                 color: Colors.blue,
-                child: Compass1(),
+                child: Compass(),
               ),
               Container(
                 color: Colors.blue,
-                child: Center(child: ListView(children: cards)
-                    // [
-                    //   Card(
-                    //     child: MyCard(),
-                    //   )
-                    // ]
-                    ),
+                child: Center(child: ListView(children: cards)),
               ),
             ],
           ),
           floatingActionButton: FloatingActionButton(
+            backgroundColor: Colors.green,
             onPressed: () {
               _mainPage(context);
             },
             tooltip: 'Post',
-            child: const Text('Share Joke'),
+            child: const Padding(
+              padding: EdgeInsets.only(left: 5),
+              child: Text('Share Joke'),
+            ),
           ), // This trailing comma makes auto-formatting nicer for build methods.
         ),
       ),
@@ -128,21 +115,18 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> makeGetRequest() async {
-    print("Jovan");
-    // final response = await http.get('http://localhost:8082/api/posts');
     final response =
         await http.get(Uri.parse('http://10.0.2.2:8082/api/posts'));
 
     if (response.statusCode == 200) {
       // If the server returns a 200 OK response, parse the JSON.
       List posts = json.decode(response.body);
-      print("here");
-      print(posts);
+
       posts.forEach((element) {
-        cards.add(MyCard(id: 1, text: element['text'], votes: element["votes"]));
+        cards
+            .add(MyCard(id: 1, text: element['text'], votes: element["votes"]));
       });
     } else {
-      print("here");
       // If the server returns an error, throw an exception.
       throw Exception('Failed to load data');
     }

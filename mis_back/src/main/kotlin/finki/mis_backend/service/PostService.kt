@@ -13,6 +13,6 @@ class PostService(
     }
 
     fun save(text: String) {
-        postRepository.save(Post(text = text, votes = 0, id = 0))
+        postRepository.save(Post(text = text, votes = 0))
     }
 }

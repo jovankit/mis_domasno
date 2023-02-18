@@ -8,10 +8,7 @@ class MyFormPage extends StatefulWidget {
 
 class _MyFormPageState extends State<MyFormPage> {
   final _formKey = GlobalKey<FormState>();
-  late String _text;
-
-  void save() {
-  }
+  String _text = '';
 
   @override
   Widget build(BuildContext context) {
@@ -27,24 +24,19 @@ class _MyFormPageState extends State<MyFormPage> {
             children: [
               TextFormField(
                 decoration: InputDecoration(labelText: 'Text / Joke'),
-                validator: (value) {
-                  if (value!.isEmpty) {
-                    return 'Please enter your name';
-                  }
-                  return null;
-                },
-                onSaved: (value) {
+                onChanged: (value) {
                   setState(() {
-                    _text = value!;
+                    _text = value;
                   });
-                  createPost();
                 },
               ),
-              const Padding(
+              Padding(
                   padding: EdgeInsets.symmetric(vertical: 20.0),
                   child: ElevatedButton(
-                      child: Text('Share'),
-                      onPressed: null))
+                      onPressed: () {
+                        createPost();
+                      },
+                      child: Text("Share")))
             ],
           ),
         ),
@@ -53,12 +45,10 @@ class _MyFormPageState extends State<MyFormPage> {
   }
 
   Future<void> createPost() async {
-    final response = await http.post(
-        Uri.parse('http://10.0.2.2:8082/api/posts'),
-        body: {
-          'text': _text,
-        }
-    );
+    final response =
+        await http.post(Uri.parse('http://10.0.2.2:8082/api/posts'), body: {
+      'text': _text,
+    });
 
     if (response.statusCode == 201) {
       print('Post created successfully.');

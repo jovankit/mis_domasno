@@ -5,7 +5,7 @@ class MyCard extends StatefulWidget {
   final String text;
   final int votes;
 
-  MyCard({required this.id,required this.text,required this.votes});
+  MyCard({required this.id, required this.text, required this.votes});
 
   @override
   _MyButtonState createState() => _MyButtonState();
@@ -34,14 +34,10 @@ class _MyButtonState extends State<MyCard> {
   @override
   Widget build(BuildContext context) {
     return Card(
-      // decoration: BoxDecoration(
-      //   color: Colors.white,
-      // ),
       child: Row(children: [
         Expanded(
-          child: Padding(
-              padding: EdgeInsets.only(left: 10.0),
-              child: Text(text)),
+          child:
+              Padding(padding: EdgeInsets.only(left: 10.0), child: Text(text)),
         ),
         Text(votes.toString()),
         Padding(

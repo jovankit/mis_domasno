@@ -3,9 +3,8 @@ package finki.mis_backend.domain
 import jakarta.persistence.Entity
 import jakarta.persistence.Table
 import jakarta.persistence.Id
-import javax.annotation.processing.Generated
-import javax.persistence.GeneratedValue
-import javax.persistence.GenerationType
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.GenerationType
 
 
 @Entity

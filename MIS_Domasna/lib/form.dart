@@ -46,9 +46,7 @@ class _MyFormPageState extends State<MyFormPage> {
 
   Future<void> createPost() async {
     final response =
-        await http.post(Uri.parse('http://10.0.2.2:8082/api/posts'), body: {
-      'text': _text,
-    });
+        await http.post(Uri.parse('http://10.0.2.2:8082/api/posts?text=$_text'));
 
     if (response.statusCode == 201) {
       print('Post created successfully.');

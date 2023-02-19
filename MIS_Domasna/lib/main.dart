@@ -36,14 +36,31 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateMixin {
   int _counter = 0;
-  List<MyCard> cards = [];
+  List<MyCard> _cards = [];
+  late TabController _tabController=TabController(vsync: this, length: 2);
 
   @override
   void initState() {
     super.initState();
     makeGetRequest();
+    _tabController.addListener(_handleTabSelection);
+  }
+
+  void _handleTabSelection() {
+    if (_tabController.indexIsChanging && _tabController.index==1) {
+      makeGetRequest();
+
+      print("here");
+    }
+  }
+
+  @override
+  void dispose() {
+    _tabController.removeListener(_handleTabSelection);
+    _tabController.dispose();
+    super.dispose();
   }
 
   void _incrementCounter() {
@@ -62,13 +79,14 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    cards.sort((a, b) => a.votes.compareTo(b.votes));
+    _cards.sort((a, b) => a.votes.compareTo(b.votes));
     return MaterialApp(
       home: DefaultTabController(
         length: 2,
         child: Scaffold(
           appBar: AppBar(
             bottom: TabBar(
+              controller: _tabController,
               tabs: [
                 Tab(text: 'Fun Compass'),
                 Tab(text: 'Jokes'),
@@ -87,6 +105,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ],
           ),
           body: TabBarView(
+            controller: _tabController,
             children: [
               Container(
                 color: Colors.blue,
@@ -94,7 +113,7 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
               Container(
                 color: Colors.blue,
-                child: Center(child: ListView(children: cards)),
+                child: Center(child: ListView(children: _cards)),
               ),
             ],
           ),
@@ -115,6 +134,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> makeGetRequest() async {
+    List<MyCard> cards = [];
     final response =
         await http.get(Uri.parse('http://10.0.2.2:8082/api/posts'));
 
@@ -122,10 +142,12 @@ class _MyHomePageState extends State<MyHomePage> {
       // If the server returns a 200 OK response, parse the JSON.
       List posts = json.decode(response.body);
 
-      posts.forEach((element) {
+      for (var element in posts) {
         cards
             .add(MyCard(id: 1, text: element['text'], votes: element["votes"]));
-      });
+      }
+      _cards=cards;
+      setState(() {});
     } else {
       // If the server returns an error, throw an exception.
       throw Exception('Failed to load data');

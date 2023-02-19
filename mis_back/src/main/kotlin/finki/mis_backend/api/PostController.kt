@@ -13,7 +13,7 @@ class PostController(
     fun getAllPosts(): List<Post> = postService.getAllPost()
 
     @PostMapping
-    fun savePost(@RequestBody text: String) {
+    fun savePost(@RequestParam text: String) {
         postService.save(text)
     }
 }
